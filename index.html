@@ -79,6 +79,335 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-unreal-input-system-via-gamepad" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/10/25/unreal-input-system-via-gamepad/" class="article-date">
+  <time datetime="2020-10-25T09:11:09.000Z" itemprop="datePublished">2020-10-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/10/25/unreal-input-system-via-gamepad/">unreal-input-system-via-gamepad</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li>this post covers<ul>
+<li>key mapping of Xbox One controller in UnrealEngine</li>
+<li>how UnrealEngine handles input from user</li>
+<li>input process for gamepad (with Xbox One controller)</li>
+</ul>
+</li>
+<li>environment<ul>
+<li>Unreal Engine 4 <code>ver. 4.25</code></li>
+<li>Visual Studio 2019 <code>ver. 16.7.6</code></li>
+<li>Windows 10 <code>ver. 2004</code></li>
+</ul>
+</li>
+<li>reference<ol>
+<li><a href="https://support.xbox.com/en-US/help/hardware-network/controller/xbox-one-wireless-controller" target="_blank" rel="noopener">https://support.xbox.com/en-US/help/hardware-network/controller/xbox-one-wireless-controller</a></li>
+</ol>
+</li>
+</ul>
+<hr>
+<h1 id="Terms"><a href="#Terms" class="headerlink" title="Terms"></a><em>Terms</em></h1><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Synonym</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Non-Axis</td>
+<td>Key, Button</td>
+<td>input type which has only two states: <code>Pressed</code> or <code>Released</code></td>
+</tr>
+<tr>
+<td>Axis</td>
+<td>Stick</td>
+<td>input type which has numberless states</td>
+</tr>
+<tr>
+<td>Key</td>
+<td></td>
+<td>(sometimes) it is used for indicating any input type. be careful with context for distinction of <code>Non-Axis</code></td>
+</tr>
+<tr>
+<td>Deadzone</td>
+<td>Threshold</td>
+<td>range of input values, which blocks values in range. only bigger value cannot be blocked</td>
+</tr>
+</tbody></table>
+<h1 id="Gamepad-Non-Axis-Axis-Mapping-in-UnrealEngine"><a href="#Gamepad-Non-Axis-Axis-Mapping-in-UnrealEngine" class="headerlink" title="Gamepad Non-Axis/Axis Mapping in UnrealEngine"></a><em>Gamepad Non-Axis/Axis Mapping in UnrealEngine</em></h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">UnrealEngine/Engine/Source/Runtime/Core/Private/GenericPlatform/GenericApplication.cpp</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"><span class="keyword">const</span> FGamepadKeyNames::Type FGamepadKeyNames::LeftAnalogX(<span class="string">"Gamepad_LeftX"</span>);</span><br><span class="line"><span class="keyword">const</span> FGamepadKeyNames::Type FGamepadKeyNames::LeftAnalogY(<span class="string">"Gamepad_LeftY"</span>);</span><br><span class="line"><span class="keyword">const</span> FGamepadKeyNames::Type FGamepadKeyNames::RightAnalogX(<span class="string">"Gamepad_RightX"</span>);</span><br><span class="line"><span class="keyword">const</span> FGamepadKeyNames::Type FGamepadKeyNames::RightAnalogY(<span class="string">"Gamepad_RightY"</span>);</span><br><span class="line"><span class="keyword">const</span> FGamepadKeyNames::Type FGamepadKeyNames::LeftTriggerAnalog(<span class="string">"Gamepad_LeftTriggerAxis"</span>);</span><br><span class="line"><span class="keyword">const</span> FGamepadKeyNames::Type FGamepadKeyNames::RightTriggerAnalog(<span class="string">"Gamepad_RightTriggerAxis"</span>);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>we can find some pre-defined non-axis/axis keys as <code>FName</code> in <code>GenericApplication.cpp</code>. they are for mapping from various input messages to generic input messages. “various input messages” means, there are many types of gamepad in the world. the button/stick layout differs in Xbox One controller, Playstation 4 controller and so on. the gamepads below are Xbox One, Playstation 4, Stadia and Switch in order.</p>
+<img src="/2020/10/25/unreal-input-system-via-gamepad/01.jpg" class="">
+<img src="/2020/10/25/unreal-input-system-via-gamepad/02.jpg" class="">
+<img src="/2020/10/25/unreal-input-system-via-gamepad/03.png" class="">
+<img src="/2020/10/25/unreal-input-system-via-gamepad/04.jpg" class="">
+
+<p>look at the Xbox One one and Playstation 4 one. they have many differences such as position of stick and exsitance of touch pad. even in comparison for Xbox One one and Switch one, the number of buttons differs. in this situation, it is not easy for every individual developer to support every type of gamepad, so the need of generic mapping for gamepad input arises. let us find out the generic mapping with Xbox One controller examples.</p>
+<img src="/2020/10/25/unreal-input-system-via-gamepad/06.png" class="">
+<img src="/2020/10/25/unreal-input-system-via-gamepad/07.png" class="">
+
+<p>the tables are from the <a href="https://support.xbox.com/en-US/help/hardware-network/controller/xbox-one-wireless-controller" target="_blank" rel="noopener">reference #1</a>. you can find more details for each button/stick at the URL. though there are so many items in table, some of them are not counted as user input in common situation. so, we can gotta consider the items below:</p>
+<table>
+<thead>
+<tr>
+<th>Index</th>
+<th>Item Name</th>
+<th>Unreal Mapping</th>
+<th>Input Type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Left Stick</td>
+<td>(Move Horizontally) Gamepad_LeftX</td>
+<td>Key, Axis</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Move Vertically) Gamepad_LeftY</td>
+<td>Key, Axis</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Move Left Side More Than Deadzone) Gamepad_LeftStick_Left</td>
+<td>Key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Move Up Side More Than Deadzone) Gamepad_LeftStick_Up</td>
+<td>Key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Move Right Side More Than Deadzone) Gamepad_LeftStick_Up</td>
+<td>Key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Move Down Side More Than Deadzone) Gamepad_LeftStick_Down</td>
+<td>Key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Click) Gamepad_LeftThumbstick</td>
+<td>Key</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Left Bumper</td>
+<td>Gamepad_LeftShoulder</td>
+<td>Key</td>
+</tr>
+<tr>
+<td>3</td>
+<td>View Button</td>
+<td>Gamepad_Special_Left</td>
+<td>Key</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Menu Button</td>
+<td>Gamepad_Special_Right</td>
+<td>Key</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Right Bumper</td>
+<td>Gamepad_RightShoulder</td>
+<td>Key</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Directional Pad</td>
+<td>(Left) Gamepad_DPad_Left</td>
+<td>Key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Up) Gamepad_DPad_Up</td>
+<td>Key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Right) Gamepad_DPad_Right</td>
+<td>Key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Down) Gamepad_DPad_Down</td>
+<td>Key</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Right Stick</td>
+<td>(Move Horizontally) Gamepad_RightX</td>
+<td>Key, Axis</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Move Vertically) Gamepad_RightY</td>
+<td>Key, Axis</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Move Left Side More Than Deadzone) Gamepad_RightStick_Left</td>
+<td>Key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Move Up Side More Than Deadzone) Gamepad_RightStick_Up</td>
+<td>Key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Move Right Side More Than Deadzone) Gamepad_RightStick_Up</td>
+<td>Key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Move Down Side More Than Deadzone) Gamepad_RightStick_Down</td>
+<td>Key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Click) Gamepad_RightThumbstick</td>
+<td>Key</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Right Trigger</td>
+<td>Gamepad_RightTriggerAxis</td>
+<td>Key, Axis</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Press More Than Deadzone) Gamepad_RightTrigger</td>
+<td>Key</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Left Trigger</td>
+<td>Gamepad_LeftTriggerAxis</td>
+<td>Key, Axis</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(Press More Than Deadzone) Gamepad_LeftTrigger</td>
+<td>Key</td>
+</tr>
+<tr>
+<td>X</td>
+<td>X Button</td>
+<td>Gamepad_FaceButton_Left</td>
+<td>Key</td>
+</tr>
+<tr>
+<td>Y</td>
+<td>Y Button</td>
+<td>Gamepad_FaceButton_Up</td>
+<td>Key</td>
+</tr>
+<tr>
+<td>A</td>
+<td>A Button</td>
+<td>Gamepad_FaceButton_Bottom</td>
+<td>Key</td>
+</tr>
+<tr>
+<td>B</td>
+<td>B Button</td>
+<td>Gamepad_FaceButton_Right</td>
+<td>Key</td>
+</tr>
+</tbody></table>
+<p>some of them are handled as not only Key but Axis, too.</p>
+<img src="/2020/10/25/unreal-input-system-via-gamepad/08.png" class="">
+</br>
+<img src="/2020/10/25/unreal-input-system-via-gamepad/09.png" class="">
+
+<ul>
+<li>the <code>Gamepad_LeftY</code> is the one of cases</li>
+</ul>
+<h1 id="Gamepad-Non-Axis-Input-Handling-Process"><a href="#Gamepad-Non-Axis-Input-Handling-Process" class="headerlink" title="Gamepad Non-Axis Input Handling Process"></a><em>Gamepad Non-Axis Input Handling Process</em></h1><img src="/2020/10/25/unreal-input-system-via-gamepad/10.png" class="">
+
+<p>focus the function <code>XInputInterface::SendControllerEvents()</code>. there is the logic to filter hardware input state.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">UnrealEngine/Engine/Source/Runtime/ApplicationCore/Private/Windows/XInputInterface.cpp</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> XInputInterface::SendControllerEvents()</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">0</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_A);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">1</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_B);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">2</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_X);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">3</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_Y);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">4</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_LEFT_SHOULDER);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">5</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_RIGHT_SHOULDER);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">6</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_BACK);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">7</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_START);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">8</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_LEFT_THUMB);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">9</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_RIGHT_THUMB);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">10</span>]] = !!(XInputState.Gamepad.bLeftTrigger &gt; XINPUT_GAMEPAD_TRIGGER_THRESHOLD);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">11</span>]] = !!(XInputState.Gamepad.bRightTrigger &gt; XINPUT_GAMEPAD_TRIGGER_THRESHOLD);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">12</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_DPAD_UP);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">13</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_DPAD_DOWN);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">14</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_DPAD_LEFT);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">15</span>]] = !!(XInputState.Gamepad.wButtons &amp; XINPUT_GAMEPAD_DPAD_RIGHT);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">16</span>]] = !!(XInputState.Gamepad.sThumbLY &gt; XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">17</span>]] = !!(XInputState.Gamepad.sThumbLY &lt; -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">18</span>]] = !!(XInputState.Gamepad.sThumbLX &lt; -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">19</span>]] = !!(XInputState.Gamepad.sThumbLX &gt; XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">20</span>]] = !!(XInputState.Gamepad.sThumbRY &gt; XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">21</span>]] = !!(XInputState.Gamepad.sThumbRY &lt; -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">22</span>]] = !!(XInputState.Gamepad.sThumbRX &lt; -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);</span><br><span class="line">    CurrentStates[X360ToXboxControllerMapping[<span class="number">23</span>]] = !!(XInputState.Gamepad.sThumbRX &gt; XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>the next screenshot shows the value of <code>CurrentStates</code> when you press A button in Xbox One gamepad.</p>
+<img src="/2020/10/25/unreal-input-system-via-gamepad/11.png" class="">
+
+<p>we can see the key, deadzone or threshold macro in the code. the macros are defined at <code>XInput.h</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">C:/Program Files (x86)/Windows Kits/10/Include/10.0.18362.0/um/XInput.h</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Constants for gamepad buttons</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_DPAD_UP          0x0001</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_DPAD_DOWN        0x0002</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_DPAD_LEFT        0x0004</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_DPAD_RIGHT       0x0008</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_START            0x0010</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_BACK             0x0020</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_LEFT_THUMB       0x0040</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_RIGHT_THUMB      0x0080</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_LEFT_SHOULDER    0x0100</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_RIGHT_SHOULDER   0x0200</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_A                0x1000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_B                0x2000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_X                0x4000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_Y                0x8000</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Gamepad thresholds</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE  7849</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE 8689</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XINPUT_GAMEPAD_TRIGGER_THRESHOLD    30</span></span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>there is an exception case for input smaller than deadzone. let us take an example with <code>Gamepad_LeftX</code> message. check out screenshots below.</p>
+<img src="/2020/10/25/unreal-input-system-via-gamepad/12.png" class="">
+
+<p>when you input a tiny change on left stick, <code>InputAxis()</code> is called. and the key will be accumulated in <code>EventAccumulator</code>.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">UnrealEngine/Engine/Source/Runtime/Engine/Private/UserInterface/PlayerInput.cpp</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> UPlayerInput::ProcessInputStack(...)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    Exchange(KeyState-&gt;EventCounts[EventIndex], KeyState-&gt;EventAccumulator[EventIndex]);</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>after that, the key in <code>EventAccumulator</code> is moved to <code>EventCounts</code>.</p>
+<img src="/2020/10/25/unreal-input-system-via-gamepad/13.png" class="">
+
+<p>if you keep operating the stick, the key is regarded as down.</p>
+<img src="/2020/10/25/unreal-input-system-via-gamepad/14.png" class="">
+
+<p>in this situation, the key is regarded as released if all keys are flushed.</p>
+<img src="/2020/10/25/unreal-input-system-via-gamepad/15.png" class="">
+
+<h1 id="Gamepad-Axis-Input-Handling-Process"><a href="#Gamepad-Axis-Input-Handling-Process" class="headerlink" title="Gamepad Axis Input Handling Process"></a><em>Gamepad Axis Input Handling Process</em></h1><p>the callstack of Axis one is similar to the Non-Axis one. there is a difference of execution at <code>XInputInterface::SendControllerEvents()</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">UnrealEngine/Engine/Source/Runtime/ApplicationCore/Private/Windows/XInputInterface.cpp</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> XInputInterface::SendControllerEvents()</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Send new analog data if it's different or outside the platform deadzone.</span></span><br><span class="line">    <span class="keyword">auto</span> OnControllerAnalog = [<span class="keyword">this</span>, &amp;ControllerState](<span class="keyword">const</span> FName&amp; GamePadKey, <span class="keyword">const</span> <span class="keyword">auto</span> NewAxisValue, <span class="keyword">const</span> <span class="keyword">float</span> NewAxisValueNormalized, <span class="keyword">auto</span>&amp; OldAxisValue, <span class="keyword">const</span> <span class="keyword">auto</span> DeadZone) &#123;</span><br><span class="line">        <span class="keyword">if</span> (OldAxisValue != NewAxisValue || FMath::Abs((int32)NewAxisValue) &gt; DeadZone)</span><br><span class="line">        &#123;</span><br><span class="line">            MessageHandler-&gt;OnControllerAnalog(GamePadKey, ControllerState.ControllerId, NewAxisValueNormalized);</span><br><span class="line">        &#125;</span><br><span class="line">        OldAxisValue = NewAxisValue;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; Gamepad = XInputState.Gamepad;</span><br><span class="line"></span><br><span class="line">    OnControllerAnalog(FGamepadKeyNames::LeftAnalogX, Gamepad.sThumbLX, ShortToNormalizedFloat(Gamepad.sThumbLX), ControllerState.LeftXAnalog, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);</span><br><span class="line">    OnControllerAnalog(FGamepadKeyNames::LeftAnalogY, Gamepad.sThumbLY, ShortToNormalizedFloat(Gamepad.sThumbLY), ControllerState.LeftYAnalog, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);</span><br><span class="line"></span><br><span class="line">    OnControllerAnalog(FGamepadKeyNames::RightAnalogX, Gamepad.sThumbRX, ShortToNormalizedFloat(Gamepad.sThumbRX), ControllerState.RightXAnalog, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);</span><br><span class="line">    OnControllerAnalog(FGamepadKeyNames::RightAnalogY, Gamepad.sThumbRY, ShortToNormalizedFloat(Gamepad.sThumbRY), ControllerState.RightYAnalog, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);</span><br><span class="line"></span><br><span class="line">    OnControllerAnalog(FGamepadKeyNames::LeftTriggerAnalog, Gamepad.bLeftTrigger, Gamepad.bLeftTrigger / <span class="number">255.f</span>, ControllerState.LeftTriggerAnalog, XINPUT_GAMEPAD_TRIGGER_THRESHOLD);</span><br><span class="line">    OnControllerAnalog(FGamepadKeyNames::RightTriggerAnalog, Gamepad.bRightTrigger, Gamepad.bRightTrigger / <span class="number">255.f</span>, ControllerState.RightTriggerAnalog, XINPUT_GAMEPAD_TRIGGER_THRESHOLD);</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>in this case, <code>OnControllerAnalog()</code> is called even a tiny change of input value exists. because the code compares with <code>OldAxisValue != NewAxisValue</code>. the function will not be called only when there is no change on input value.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://baemincheon.github.io/2020/10/25/unreal-input-system-via-gamepad/" data-id="ckgs4fk07000gm8shgyi34iu1" class="article-share-link">Share</a>
+      
+        <a href="https://baemincheon.github.io/2020/10/25/unreal-input-system-via-gamepad/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Input/" rel="tag">Input</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UnrealEngine/" rel="tag">UnrealEngine</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-unreal-unique-pointer" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/03/14/unreal-unique-pointer/" class="article-date">
@@ -220,7 +549,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2020/03/14/unreal-unique-pointer/" data-id="ckeha0ghx00058oshho639iam" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2020/03/14/unreal-unique-pointer/" data-id="ckgs4fk05000dm8shfwq9ejge" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2020/03/14/unreal-unique-pointer/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -354,7 +683,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2020/03/01/unreal-cpp-ctor-and-dtor/" data-id="ckeha0ghv00038osh4jgn685k" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2020/03/01/unreal-cpp-ctor-and-dtor/" data-id="ckgs4fk09000hm8shbfajcy0h" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2020/03/01/unreal-cpp-ctor-and-dtor/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -722,7 +1051,7 @@ cannot calculate. also not meaningful, unless the `DPI Scale` is the same with s
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2020/02/09/unreal-widget-coordinate-system/" data-id="ckeha0gi4000a8osh1eyb2mmh" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2020/02/09/unreal-widget-coordinate-system/" data-id="ckgs4fk0c000jm8sh5rdyf74w" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2020/02/09/unreal-widget-coordinate-system/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -810,7 +1139,7 @@ cannot calculate. also not meaningful, unless the `DPI Scale` is the same with s
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2020/02/03/home-page/" data-id="ckeha0gho00008osh3u5zcpdv" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2020/02/03/home-page/" data-id="ckgs4fjzx0006m8sh2qxidzn3" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2020/02/03/home-page/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -1106,7 +1435,7 @@ cannot calculate. also not meaningful, unless the `DPI Scale` is the same with s
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2020/01/28/unreal-blueprint-practical-use/" data-id="ckeha0ghs00018osh6tpfa29t" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2020/01/28/unreal-blueprint-practical-use/" data-id="ckgs4fk0h000nm8sha0qf2dg8" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2020/01/28/unreal-blueprint-practical-use/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -1303,7 +1632,7 @@ cannot calculate. also not meaningful, unless the `DPI Scale` is the same with s
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2020/01/17/unreal-fname-anatomy/" data-id="ckeha0gi8000f8osh3won2u4c" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2020/01/17/unreal-fname-anatomy/" data-id="ckgs4fk03000bm8sh90fj3wqe" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2020/01/17/unreal-fname-anatomy/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -1439,7 +1768,7 @@ cannot calculate. also not meaningful, unless the `DPI Scale` is the same with s
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2019/12/24/retrospection-2019/" data-id="ckeha0gi6000c8oshcuebh22s" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2019/12/24/retrospection-2019/" data-id="ckgs4fjyw0000m8sh18lnhufy" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2019/12/24/retrospection-2019/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -1566,7 +1895,7 @@ cannot calculate. also not meaningful, unless the `DPI Scale` is the same with s
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2019/08/19/shared-folder-in-wsl/" data-id="ckeha0gi000078oshhkksb27i" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2019/08/19/shared-folder-in-wsl/" data-id="ckgs4fk0e000lm8sh7avw4vco" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2019/08/19/shared-folder-in-wsl/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -1739,308 +2068,12 @@ cannot calculate. also not meaningful, unless the `DPI Scale` is the same with s
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2019/08/19/unreal-linux-server-build/" data-id="ckeha0gia000g8oshbxbt6h1n" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2019/08/19/unreal-linux-server-build/" data-id="ckgs4fjzy0007m8shcg9k9cp0" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2019/08/19/unreal-linux-server-build/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UnrealEngine/" rel="tag">UnrealEngine</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WSL/" rel="tag">WSL</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-differences-of-unreal-build-targets" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/08/16/differences-of-unreal-build-targets/" class="article-date">
-  <time datetime="2019-08-15T15:13:26.000Z" itemprop="datePublished">2019-08-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/08/16/differences-of-unreal-build-targets/">differences-of-unreal-build-targets</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <ul>
-<li>recommend to read first<ul>
-<li><a href="https://baemincheon.github.io/2019/08/06/what-is-unreal-build-target/">what-is-unreal-build-target</a></li>
-<li><a href="https://baemincheon.github.io/2019/08/11/custom-unreal-engine-build/">custom-unreal-engine-build</a></li>
-</ul>
-</li>
-<li>this post covers<ul>
-<li>what does mean each build target</li>
-<li>how to use each build target</li>
-<li>differences of some build targets</li>
-</ul>
-</li>
-<li>environment<ul>
-<li>Windows / 10</li>
-<li>Visual Studio IDE / 2017 Community</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h1 id="overview"><a href="#overview" class="headerlink" title="overview"></a>overview</h1><ul>
-<li>I suppose you already have the unreal engine built from source of 4.21 version<ul>
-<li>if you do not, read the <code>custom-unreal-engine-build</code> post</li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/02.jpg" class="">
-<ul>
-<li>once you build the <code>UE4</code> project with option <code>Development Editor &amp; Win64</code><ul>
-<li>you can find <code>[EngineRoot]/Engine/Binaries/Win64/UE4Editor.exe</code> and execute it</li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/01.jpg" class="">
-<ul>
-<li>in this window, you can create project using your custom engine<ul>
-<li>create a <code>Third Person</code> template project for testing several build targets in this post</li>
-</ul>
-</li>
-</ul>
-<h1 id="build-targets"><a href="#build-targets" class="headerlink" title="build-targets"></a>build-targets</h1><img src="/2019/08/16/differences-of-unreal-build-targets/12.jpg" class="">
-<ul>
-<li>in unreal engine, “build (file)” means the executable file or library file made from source code<ul>
-<li>ex1) <code>UE4Editor-[ProjectName].dll</code> of <code>Editor</code> build target</li>
-<li>ex2) <code>[ProjectName]Client.exe</code> of <code>Client</code> build target</li>
-<li>ex3) <code>[ProjectName].exe</code> of <code>Game</code> build target</li>
-</ul>
-</li>
-<li>there are four build targets frequently used<ul>
-<li>Client</li>
-<li>Server</li>
-<li>Game</li>
-<li>Editor</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><code>Client</code><ul>
-<li>this target is used for building only client</li>
-<li>it has several features especially displaying screen</li>
-<li>so if the system does not have any graphics API, it cannot be executed</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><code>Server</code><ul>
-<li>this target is used for building only server</li>
-<li>it does not have several features especially displaying screen</li>
-<li>so regardless of graphics API, it can be executed</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><code>Game</code><ul>
-<li>this target is used for building whole game</li>
-<li>it has all features from <code>Client</code> and <code>Server</code> targets</li>
-<li>so a build from this target can be used as client, and server too<ul>
-<li>it is not recommended for the commercial game project because user could get the server feature</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><code>Editor</code><ul>
-<li>this target is used for executing the game on unreal editor</li>
-<li>only the build from this target can be opened in unreal editor<ul>
-<li>also, unreal editor only can open this build, which means packaging impossible</li>
-</ul>
-</li>
-<li>totally, it has all features from <code>Game</code></li>
-</ul>
-</li>
-</ul>
-<h1 id="packaging"><a href="#packaging" class="headerlink" title="packaging"></a>packaging</h1><ul>
-<li>because build files do not contain unreal assets, it cannot be executed alone<ul>
-<li>we have checked out what happens when only using a build file in previous post</li>
-<li>so, executing the game from any build file, you need to package unreal assets used in the project file</li>
-<li>and packaging can be done in unreal editor, not the source code editor such as visual studio IDE</li>
-</ul>
-</li>
-<li>there are some prerequisites for pacakaging the test project</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/08.jpg" class="">
-<ul>
-<li>open the <code>sln</code> for the test project and build it with <code>Development Editor &amp; Win64</code><ul>
-<li>and press <code>F5</code> to start debugging</li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/09.jpg" class="">
-<ul>
-<li>you would see the <code>Third Person</code> default map with unreal editor</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/10.jpg" class="">
-<ul>
-<li>open the <code>Project Settings</code> window and find <code>Maps &amp; Modes</code> tab<ul>
-<li>set every map with the default map</li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/11.jpg" class="">
-<ul>
-<li>find <code>Packaging</code> tab<ul>
-<li>add the default map to the <code>List of maps to include in a packaged build</code></li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/06.jpg" class="">
-<img src="/2019/08/16/differences-of-unreal-build-targets/13.jpg" class="">
-<ul>
-<li>write target config files for <code>Client</code> and <code>Server</code> targets</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/07.jpg" class="">
-<ul>
-<li>right click <code>uproject</code> and select <code>Generate project files</code></li>
-</ul>
-<ul>
-<li>re-open the <code>sln</code> and build the test project with each solution configuration<ul>
-<li><code>Development &amp; Win64</code></li>
-<li><code>Development Client &amp; Win64</code></li>
-<li><code>Development Server &amp; Win64</code></li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/14.jpg" class="">
-<ul>
-<li>now you can see the three build files</li>
-</ul>
-<ul>
-<li>open the test project with unreal editor<ul>
-<li>way1) double click <code>uproject</code></li>
-<li>way2) execute <code>[EngineRoot]/Engine/Binaries/Win64/UE4Editor.exe</code> and select the project</li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/15.jpg" class="">
-<ul>
-<li>select <code>Development</code> in <code>File/Package Project/Build Configuration</code></li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/16.jpg" class="">
-<img src="/2019/08/16/differences-of-unreal-build-targets/17.jpg" class="">
-<ul>
-<li>select <code>Windows (64-bit)</code> in <code>File/Package Project/Windows</code><ul>
-<li>choose an arbitrary directory for saving the package</li>
-<li>in my case, I created <code>Packages</code> folder in project directory and use it</li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/18.jpg" class="">
-<ul>
-<li>after packaging, you can see the directory like this</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/19.jpg" class="">
-<ul>
-<li>as we packaged the project with <code>Development</code> the executable files are the same</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/20.jpg" class="">
-<ul>
-<li>copy the build files into the <code>Packages/WindowsNoEditor/[ProjectName]/Binaries/Win64</code><ul>
-<li><code>[ProjectName].exe</code></li>
-<li><code>[ProjectName]Client.exe</code></li>
-<li><code>[ProjectName]Server.exe</code></li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/21.jpg" class="">
-<ul>
-<li>run the command prompt and move to the <code>Packages/WindowsNoEditor/[ProjectName]/Binaries/Win64</code><ul>
-<li>execute each build file with some options for knowing what happens inside</li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/22.jpg" class="">
-<img src="/2019/08/16/differences-of-unreal-build-targets/23.jpg" class="">
-<ul>
-<li>execute <code>Game</code> build file with options <code>-log -windowed resx=720 resy=480</code><ul>
-<li><code>-log</code> option makes the game print logs</li>
-<li><code>-windowed</code> option prevents the game from running as full-screen</li>
-</ul>
-</li>
-<li>you can terminate the game<ul>
-<li>way1) click <code>X</code> on the right of game window</li>
-<li>way2) press a <a href="https://en.wikipedia.org/wiki/Grave_accent" target="_blank" rel="noopener">grave accent</a> and type <code>exit</code></li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/24.jpg" class="">
-<ul>
-<li>execute <code>Client</code> build file with options <code>-log -windowed resx=720 resy=480</code><ul>
-<li>you can see the same result of <code>Game</code> build</li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/25.jpg" class="">
-<ul>
-<li>execute <code>Server</code> build file with options <code>-log</code><ul>
-<li>you can see there is no game screen with <code>Server</code> build</li>
-</ul>
-</li>
-</ul>
-<h1 id="game-client-server"><a href="#game-client-server" class="headerlink" title="game-client-server"></a>game-client-server</h1><ul>
-<li>I mentioned <code>Game</code> as “it has all features from <code>Client</code> and <code>Server</code> targets”</li>
-</ul>
-<ul>
-<li>execute <code>Game</code> build 3 times with options below<ul>
-<li>1) <code>-server 127.0.0.1 -log -windowed resx=720 resy=480</code></li>
-<li>2) <code>127.0.0.1 -log -windowed resx=720 resy=480</code></li>
-<li>3) <code>127.0.0.1 -log -windowed resx=720 resy=480</code></li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/26.jpg" class="">
-<ul>
-<li>the first game acts as (client + server) and other games act as client<ul>
-<li>this means <code>Game target = Client target + Server target</code></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li>execute <code>Server</code> build with options below<ul>
-<li><code>127.0.0.1 -log</code></li>
-</ul>
-</li>
-<li>execute <code>Client</code> twice with options below<ul>
-<li>1) <code>127.0.0.1 -log -windowed resx=720 resy=480</code></li>
-<li>2) <code>127.0.0.1 -log -windowed resx=720 resy=480</code></li>
-</ul>
-</li>
-</ul>
-<img src="/2019/08/16/differences-of-unreal-build-targets/27.jpg" class="">
-<ul>
-<li>the first game acts as server and other games act as client<ul>
-<li>you can see server do not have a screen</li>
-</ul>
-</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2019/08/16/differences-of-unreal-build-targets/" data-id="ckeha0gi200088osh5s97gr61" class="article-share-link">Share</a>
-      
-        <a href="https://baemincheon.github.io/2019/08/16/differences-of-unreal-build-targets/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UnrealEngine/" rel="tag">UnrealEngine</a></li></ul>
 
     </footer>
   </div>
@@ -2067,7 +2100,7 @@ cannot calculate. also not meaningful, unless the `DPI Scale` is the same with s
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/About/" rel="tag">About</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blueprint/" rel="tag">Blueprint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlueprintImplementableEvent/" rel="tag">BlueprintImplementableEvent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FName/" rel="tag">FName</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Home/" rel="tag">Home</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HotReload/" rel="tag">HotReload</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Retrospection/" rel="tag">Retrospection</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SmartPointer/" rel="tag">SmartPointer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UniquePointer/" rel="tag">UniquePointer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UnrealEngine/" rel="tag">UnrealEngine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WSL/" rel="tag">WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Widget/" rel="tag">Widget</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/About/" rel="tag">About</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blueprint/" rel="tag">Blueprint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlueprintImplementableEvent/" rel="tag">BlueprintImplementableEvent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FName/" rel="tag">FName</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Home/" rel="tag">Home</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HotReload/" rel="tag">HotReload</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Input/" rel="tag">Input</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Retrospection/" rel="tag">Retrospection</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SmartPointer/" rel="tag">SmartPointer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UniquePointer/" rel="tag">UniquePointer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UnrealEngine/" rel="tag">UnrealEngine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WSL/" rel="tag">WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Widget/" rel="tag">Widget</a></li></ul>
     </div>
   </div>
 
@@ -2077,7 +2110,7 @@ cannot calculate. also not meaningful, unless the `DPI Scale` is the same with s
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/About/" style="font-size: 10px;">About</a> <a href="/tags/Blueprint/" style="font-size: 10px;">Blueprint</a> <a href="/tags/BlueprintImplementableEvent/" style="font-size: 10px;">BlueprintImplementableEvent</a> <a href="/tags/FName/" style="font-size: 10px;">FName</a> <a href="/tags/Home/" style="font-size: 10px;">Home</a> <a href="/tags/HotReload/" style="font-size: 10px;">HotReload</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Retrospection/" style="font-size: 10px;">Retrospection</a> <a href="/tags/SmartPointer/" style="font-size: 10px;">SmartPointer</a> <a href="/tags/UniquePointer/" style="font-size: 10px;">UniquePointer</a> <a href="/tags/UnrealEngine/" style="font-size: 20px;">UnrealEngine</a> <a href="/tags/WSL/" style="font-size: 15px;">WSL</a> <a href="/tags/Widget/" style="font-size: 10px;">Widget</a>
+      <a href="/tags/About/" style="font-size: 10px;">About</a> <a href="/tags/Blueprint/" style="font-size: 10px;">Blueprint</a> <a href="/tags/BlueprintImplementableEvent/" style="font-size: 10px;">BlueprintImplementableEvent</a> <a href="/tags/FName/" style="font-size: 10px;">FName</a> <a href="/tags/Home/" style="font-size: 10px;">Home</a> <a href="/tags/HotReload/" style="font-size: 10px;">HotReload</a> <a href="/tags/Input/" style="font-size: 10px;">Input</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Retrospection/" style="font-size: 10px;">Retrospection</a> <a href="/tags/SmartPointer/" style="font-size: 10px;">SmartPointer</a> <a href="/tags/UniquePointer/" style="font-size: 10px;">UniquePointer</a> <a href="/tags/UnrealEngine/" style="font-size: 20px;">UnrealEngine</a> <a href="/tags/WSL/" style="font-size: 15px;">WSL</a> <a href="/tags/Widget/" style="font-size: 10px;">Widget</a>
     </div>
   </div>
 
@@ -2086,7 +2119,7 @@ cannot calculate. also not meaningful, unless the `DPI Scale` is the same with s
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li></ul>
     </div>
   </div>
 
@@ -2097,6 +2130,10 @@ cannot calculate. also not meaningful, unless the `DPI Scale` is the same with s
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2020/10/25/unreal-input-system-via-gamepad/">unreal-input-system-via-gamepad</a>
+          </li>
         
           <li>
             <a href="/2020/03/14/unreal-unique-pointer/">unreal-unique-pointer</a>
@@ -2112,10 +2149,6 @@ cannot calculate. also not meaningful, unless the `DPI Scale` is the same with s
         
           <li>
             <a href="/2020/02/03/home-page/">home-page</a>
-          </li>
-        
-          <li>
-            <a href="/2020/01/28/unreal-blueprint-practical-use/">unreal-blueprint-practical-use</a>
           </li>
         
       </ul>

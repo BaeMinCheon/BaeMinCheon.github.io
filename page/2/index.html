@@ -79,6 +79,302 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-differences-of-unreal-build-targets" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/16/differences-of-unreal-build-targets/" class="article-date">
+  <time datetime="2019-08-15T15:13:26.000Z" itemprop="datePublished">2019-08-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/08/16/differences-of-unreal-build-targets/">differences-of-unreal-build-targets</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li>recommend to read first<ul>
+<li><a href="https://baemincheon.github.io/2019/08/06/what-is-unreal-build-target/">what-is-unreal-build-target</a></li>
+<li><a href="https://baemincheon.github.io/2019/08/11/custom-unreal-engine-build/">custom-unreal-engine-build</a></li>
+</ul>
+</li>
+<li>this post covers<ul>
+<li>what does mean each build target</li>
+<li>how to use each build target</li>
+<li>differences of some build targets</li>
+</ul>
+</li>
+<li>environment<ul>
+<li>Windows / 10</li>
+<li>Visual Studio IDE / 2017 Community</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h1 id="overview"><a href="#overview" class="headerlink" title="overview"></a>overview</h1><ul>
+<li>I suppose you already have the unreal engine built from source of 4.21 version<ul>
+<li>if you do not, read the <code>custom-unreal-engine-build</code> post</li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/02.jpg" class="">
+<ul>
+<li>once you build the <code>UE4</code> project with option <code>Development Editor &amp; Win64</code><ul>
+<li>you can find <code>[EngineRoot]/Engine/Binaries/Win64/UE4Editor.exe</code> and execute it</li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/01.jpg" class="">
+<ul>
+<li>in this window, you can create project using your custom engine<ul>
+<li>create a <code>Third Person</code> template project for testing several build targets in this post</li>
+</ul>
+</li>
+</ul>
+<h1 id="build-targets"><a href="#build-targets" class="headerlink" title="build-targets"></a>build-targets</h1><img src="/2019/08/16/differences-of-unreal-build-targets/12.jpg" class="">
+<ul>
+<li>in unreal engine, “build (file)” means the executable file or library file made from source code<ul>
+<li>ex1) <code>UE4Editor-[ProjectName].dll</code> of <code>Editor</code> build target</li>
+<li>ex2) <code>[ProjectName]Client.exe</code> of <code>Client</code> build target</li>
+<li>ex3) <code>[ProjectName].exe</code> of <code>Game</code> build target</li>
+</ul>
+</li>
+<li>there are four build targets frequently used<ul>
+<li>Client</li>
+<li>Server</li>
+<li>Game</li>
+<li>Editor</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><code>Client</code><ul>
+<li>this target is used for building only client</li>
+<li>it has several features especially displaying screen</li>
+<li>so if the system does not have any graphics API, it cannot be executed</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><code>Server</code><ul>
+<li>this target is used for building only server</li>
+<li>it does not have several features especially displaying screen</li>
+<li>so regardless of graphics API, it can be executed</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><code>Game</code><ul>
+<li>this target is used for building whole game</li>
+<li>it has all features from <code>Client</code> and <code>Server</code> targets</li>
+<li>so a build from this target can be used as client, and server too<ul>
+<li>it is not recommended for the commercial game project because user could get the server feature</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><code>Editor</code><ul>
+<li>this target is used for executing the game on unreal editor</li>
+<li>only the build from this target can be opened in unreal editor<ul>
+<li>also, unreal editor only can open this build, which means packaging impossible</li>
+</ul>
+</li>
+<li>totally, it has all features from <code>Game</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="packaging"><a href="#packaging" class="headerlink" title="packaging"></a>packaging</h1><ul>
+<li>because build files do not contain unreal assets, it cannot be executed alone<ul>
+<li>we have checked out what happens when only using a build file in previous post</li>
+<li>so, executing the game from any build file, you need to package unreal assets used in the project file</li>
+<li>and packaging can be done in unreal editor, not the source code editor such as visual studio IDE</li>
+</ul>
+</li>
+<li>there are some prerequisites for pacakaging the test project</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/08.jpg" class="">
+<ul>
+<li>open the <code>sln</code> for the test project and build it with <code>Development Editor &amp; Win64</code><ul>
+<li>and press <code>F5</code> to start debugging</li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/09.jpg" class="">
+<ul>
+<li>you would see the <code>Third Person</code> default map with unreal editor</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/10.jpg" class="">
+<ul>
+<li>open the <code>Project Settings</code> window and find <code>Maps &amp; Modes</code> tab<ul>
+<li>set every map with the default map</li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/11.jpg" class="">
+<ul>
+<li>find <code>Packaging</code> tab<ul>
+<li>add the default map to the <code>List of maps to include in a packaged build</code></li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/06.jpg" class="">
+<img src="/2019/08/16/differences-of-unreal-build-targets/13.jpg" class="">
+<ul>
+<li>write target config files for <code>Client</code> and <code>Server</code> targets</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/07.jpg" class="">
+<ul>
+<li>right click <code>uproject</code> and select <code>Generate project files</code></li>
+</ul>
+<ul>
+<li>re-open the <code>sln</code> and build the test project with each solution configuration<ul>
+<li><code>Development &amp; Win64</code></li>
+<li><code>Development Client &amp; Win64</code></li>
+<li><code>Development Server &amp; Win64</code></li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/14.jpg" class="">
+<ul>
+<li>now you can see the three build files</li>
+</ul>
+<ul>
+<li>open the test project with unreal editor<ul>
+<li>way1) double click <code>uproject</code></li>
+<li>way2) execute <code>[EngineRoot]/Engine/Binaries/Win64/UE4Editor.exe</code> and select the project</li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/15.jpg" class="">
+<ul>
+<li>select <code>Development</code> in <code>File/Package Project/Build Configuration</code></li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/16.jpg" class="">
+<img src="/2019/08/16/differences-of-unreal-build-targets/17.jpg" class="">
+<ul>
+<li>select <code>Windows (64-bit)</code> in <code>File/Package Project/Windows</code><ul>
+<li>choose an arbitrary directory for saving the package</li>
+<li>in my case, I created <code>Packages</code> folder in project directory and use it</li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/18.jpg" class="">
+<ul>
+<li>after packaging, you can see the directory like this</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/19.jpg" class="">
+<ul>
+<li>as we packaged the project with <code>Development</code> the executable files are the same</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/20.jpg" class="">
+<ul>
+<li>copy the build files into the <code>Packages/WindowsNoEditor/[ProjectName]/Binaries/Win64</code><ul>
+<li><code>[ProjectName].exe</code></li>
+<li><code>[ProjectName]Client.exe</code></li>
+<li><code>[ProjectName]Server.exe</code></li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/21.jpg" class="">
+<ul>
+<li>run the command prompt and move to the <code>Packages/WindowsNoEditor/[ProjectName]/Binaries/Win64</code><ul>
+<li>execute each build file with some options for knowing what happens inside</li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/22.jpg" class="">
+<img src="/2019/08/16/differences-of-unreal-build-targets/23.jpg" class="">
+<ul>
+<li>execute <code>Game</code> build file with options <code>-log -windowed resx=720 resy=480</code><ul>
+<li><code>-log</code> option makes the game print logs</li>
+<li><code>-windowed</code> option prevents the game from running as full-screen</li>
+</ul>
+</li>
+<li>you can terminate the game<ul>
+<li>way1) click <code>X</code> on the right of game window</li>
+<li>way2) press a <a href="https://en.wikipedia.org/wiki/Grave_accent" target="_blank" rel="noopener">grave accent</a> and type <code>exit</code></li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/24.jpg" class="">
+<ul>
+<li>execute <code>Client</code> build file with options <code>-log -windowed resx=720 resy=480</code><ul>
+<li>you can see the same result of <code>Game</code> build</li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/25.jpg" class="">
+<ul>
+<li>execute <code>Server</code> build file with options <code>-log</code><ul>
+<li>you can see there is no game screen with <code>Server</code> build</li>
+</ul>
+</li>
+</ul>
+<h1 id="game-client-server"><a href="#game-client-server" class="headerlink" title="game-client-server"></a>game-client-server</h1><ul>
+<li>I mentioned <code>Game</code> as “it has all features from <code>Client</code> and <code>Server</code> targets”</li>
+</ul>
+<ul>
+<li>execute <code>Game</code> build 3 times with options below<ul>
+<li>1) <code>-server 127.0.0.1 -log -windowed resx=720 resy=480</code></li>
+<li>2) <code>127.0.0.1 -log -windowed resx=720 resy=480</code></li>
+<li>3) <code>127.0.0.1 -log -windowed resx=720 resy=480</code></li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/26.jpg" class="">
+<ul>
+<li>the first game acts as (client + server) and other games act as client<ul>
+<li>this means <code>Game target = Client target + Server target</code></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>execute <code>Server</code> build with options below<ul>
+<li><code>127.0.0.1 -log</code></li>
+</ul>
+</li>
+<li>execute <code>Client</code> twice with options below<ul>
+<li>1) <code>127.0.0.1 -log -windowed resx=720 resy=480</code></li>
+<li>2) <code>127.0.0.1 -log -windowed resx=720 resy=480</code></li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/16/differences-of-unreal-build-targets/27.jpg" class="">
+<ul>
+<li>the first game acts as server and other games act as client<ul>
+<li>you can see server do not have a screen</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://baemincheon.github.io/2019/08/16/differences-of-unreal-build-targets/" data-id="ckgs4fjzv0003m8sha1lt6ro2" class="article-share-link">Share</a>
+      
+        <a href="https://baemincheon.github.io/2019/08/16/differences-of-unreal-build-targets/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UnrealEngine/" rel="tag">UnrealEngine</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-custom-unreal-engine-build" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/08/11/custom-unreal-engine-build/" class="article-date">
@@ -242,7 +538,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2019/08/11/custom-unreal-engine-build/" data-id="ckeha0ghw00048oshbskhbd3i" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2019/08/11/custom-unreal-engine-build/" data-id="ckgs4fk000008m8sh8dkegol5" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2019/08/11/custom-unreal-engine-build/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -388,7 +684,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2019/08/06/what-is-unreal-build-target/" data-id="ckeha0git001e8osh9mzp6cxz" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2019/08/06/what-is-unreal-build-target/" data-id="ckgs4fjzw0004m8shfczre0u8" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2019/08/06/what-is-unreal-build-target/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -420,7 +716,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/About/" rel="tag">About</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blueprint/" rel="tag">Blueprint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlueprintImplementableEvent/" rel="tag">BlueprintImplementableEvent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FName/" rel="tag">FName</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Home/" rel="tag">Home</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HotReload/" rel="tag">HotReload</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Retrospection/" rel="tag">Retrospection</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SmartPointer/" rel="tag">SmartPointer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UniquePointer/" rel="tag">UniquePointer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UnrealEngine/" rel="tag">UnrealEngine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WSL/" rel="tag">WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Widget/" rel="tag">Widget</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/About/" rel="tag">About</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blueprint/" rel="tag">Blueprint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlueprintImplementableEvent/" rel="tag">BlueprintImplementableEvent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FName/" rel="tag">FName</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Home/" rel="tag">Home</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HotReload/" rel="tag">HotReload</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Input/" rel="tag">Input</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Retrospection/" rel="tag">Retrospection</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SmartPointer/" rel="tag">SmartPointer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UniquePointer/" rel="tag">UniquePointer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UnrealEngine/" rel="tag">UnrealEngine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WSL/" rel="tag">WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Widget/" rel="tag">Widget</a></li></ul>
     </div>
   </div>
 
@@ -430,7 +726,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/About/" style="font-size: 10px;">About</a> <a href="/tags/Blueprint/" style="font-size: 10px;">Blueprint</a> <a href="/tags/BlueprintImplementableEvent/" style="font-size: 10px;">BlueprintImplementableEvent</a> <a href="/tags/FName/" style="font-size: 10px;">FName</a> <a href="/tags/Home/" style="font-size: 10px;">Home</a> <a href="/tags/HotReload/" style="font-size: 10px;">HotReload</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Retrospection/" style="font-size: 10px;">Retrospection</a> <a href="/tags/SmartPointer/" style="font-size: 10px;">SmartPointer</a> <a href="/tags/UniquePointer/" style="font-size: 10px;">UniquePointer</a> <a href="/tags/UnrealEngine/" style="font-size: 20px;">UnrealEngine</a> <a href="/tags/WSL/" style="font-size: 15px;">WSL</a> <a href="/tags/Widget/" style="font-size: 10px;">Widget</a>
+      <a href="/tags/About/" style="font-size: 10px;">About</a> <a href="/tags/Blueprint/" style="font-size: 10px;">Blueprint</a> <a href="/tags/BlueprintImplementableEvent/" style="font-size: 10px;">BlueprintImplementableEvent</a> <a href="/tags/FName/" style="font-size: 10px;">FName</a> <a href="/tags/Home/" style="font-size: 10px;">Home</a> <a href="/tags/HotReload/" style="font-size: 10px;">HotReload</a> <a href="/tags/Input/" style="font-size: 10px;">Input</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Retrospection/" style="font-size: 10px;">Retrospection</a> <a href="/tags/SmartPointer/" style="font-size: 10px;">SmartPointer</a> <a href="/tags/UniquePointer/" style="font-size: 10px;">UniquePointer</a> <a href="/tags/UnrealEngine/" style="font-size: 20px;">UnrealEngine</a> <a href="/tags/WSL/" style="font-size: 15px;">WSL</a> <a href="/tags/Widget/" style="font-size: 10px;">Widget</a>
     </div>
   </div>
 
@@ -439,7 +735,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li></ul>
     </div>
   </div>
 
@@ -450,6 +746,10 @@ ga('send', 'pageview');
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2020/10/25/unreal-input-system-via-gamepad/">unreal-input-system-via-gamepad</a>
+          </li>
         
           <li>
             <a href="/2020/03/14/unreal-unique-pointer/">unreal-unique-pointer</a>
@@ -465,10 +765,6 @@ ga('send', 'pageview');
         
           <li>
             <a href="/2020/02/03/home-page/">home-page</a>
-          </li>
-        
-          <li>
-            <a href="/2020/01/28/unreal-blueprint-practical-use/">unreal-blueprint-practical-use</a>
           </li>
         
       </ul>
