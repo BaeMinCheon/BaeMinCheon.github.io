@@ -79,6 +79,179 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-unreal-linux-server-build" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/19/unreal-linux-server-build/" class="article-date">
+  <time datetime="2019-08-18T15:46:45.000Z" itemprop="datePublished">2019-08-19</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/08/19/unreal-linux-server-build/">unreal-linux-server-build</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li>recommend to read first<ul>
+<li><a href="https://baemincheon.github.io/2019/08/06/what-is-unreal-build-target/">what-is-unreal-build-target</a></li>
+<li><a href="https://baemincheon.github.io/2019/08/11/custom-unreal-engine-build/">custom-unreal-engine-build</a></li>
+<li><a href="https://baemincheon.github.io/2019/08/16/differences-of-unreal-build-targets/">differences-of-unreal-build-targets</a></li>
+</ul>
+</li>
+<li>this post covers<ul>
+<li>how to setup cross compile environment</li>
+<li>how to build linux server</li>
+<li>how to use client and server in cross platform</li>
+</ul>
+</li>
+<li>environment<ul>
+<li>Windows / 10</li>
+<li>Visual Studio IDE / 2017 Community</li>
+<li>Unreal Engine / 4.21 Built From Source Code</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h1 id="overview"><a href="#overview" class="headerlink" title="overview"></a>overview</h1><ul>
+<li>if you want to seperate the game into client and server<ul>
+<li>mostly, the clients would be executed on windows</li>
+<li>as the server is up to you, you can select more efficient option<ul>
+<li>in aws, linux server instead of windows to save cost</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>so it is needed to build linux server, but you can use cross compilation<ul>
+<li>this makes you can build linux server on windows</li>
+</ul>
+</li>
+<li>in this post, I suppose you have already an unreal engine built from source code and test project<ul>
+<li>especially, I used 4.21 version</li>
+</ul>
+</li>
+</ul>
+<h1 id="setup"><a href="#setup" class="headerlink" title="setup"></a>setup</h1><ul>
+<li>download the proper toolchain from <a href="https://docs.unrealengine.com/en-US/Platforms/Linux/GettingStarted/index.html" target="_blank" rel="noopener">this document</a><ul>
+<li>in my case, <code>clang-6.0.1-based</code> toolchain is needed</li>
+</ul>
+</li>
+<li>execute the toolchain installer<ul>
+<li>you do not have to do extra works when your engine version is equal to or over 4.14</li>
+<li>if not, reference the document mentioned for the details</li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/19/unreal-linux-server-build/01.jpg" class="">
+<ul>
+<li>in the test project, edit the <code>DefaultEngine.ini</code> of <code>[ProjectRoot]/Config/DefaultEngine.ini</code><ul>
+<li>add the code below</li>
+<li>the code will add configurations for linux version build</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[&#x2F;Script&#x2F;LinuxTargetPlatform.LinuxTargetSettings]</span><br><span class="line">TargetArchitecture&#x3D;X86_64UnknownLinuxGnu</span><br></pre></td></tr></table></figure>
+
+<img src="/2019/08/19/unreal-linux-server-build/02.jpg" class="">
+<ul>
+<li>right click <code>uproject</code> and select <code>Generate Visual Studio project files</code><ul>
+<li>open <code>sln</code> and build the test project with <code>Development Editor &amp; Win64</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="build"><a href="#build" class="headerlink" title="build"></a>build</h1><img src="/2019/08/19/unreal-linux-server-build/03.jpg" class="">
+<ul>
+<li>double click <code>uproject</code> and you would see the test project on unreal editor</li>
+</ul>
+<img src="/2019/08/19/unreal-linux-server-build/04.jpg" class="">
+<ul>
+<li>select <code>Development</code> in <code>File/Package Project/Build Configuration</code></li>
+</ul>
+<img src="/2019/08/19/unreal-linux-server-build/05.jpg" class="">
+<ul>
+<li>select <code>Linux</code> in <code>File/Package Project</code><ul>
+<li>choose an arbitrary directory for saving the package</li>
+<li>in my case, I created <code>Packages</code> folder in project directory and use it</li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/19/unreal-linux-server-build/06.jpg" class="">
+<ul>
+<li>after packaging, you can see the directory like this</li>
+</ul>
+<img src="/2019/08/19/unreal-linux-server-build/07.jpg" class="">
+<ul>
+<li>open <code>sln</code> and build the test project with <code>Development Server &amp; Linux</code></li>
+</ul>
+<img src="/2019/08/19/unreal-linux-server-build/08.jpg" class="">
+<ul>
+<li>you can see the <code>[ProjectName]Server</code> build, which will be executed on linux</li>
+</ul>
+<img src="/2019/08/19/unreal-linux-server-build/09.jpg" class="">
+<ul>
+<li>copy the <code>[ProjectName]Server</code> into package binary folder<ul>
+<li>now you can execute <code>[ProjectName]Server</code> on linux</li>
+</ul>
+</li>
+</ul>
+<h1 id="usage"><a href="#usage" class="headerlink" title="usage"></a>usage</h1><ul>
+<li>in this post, I will show you an example with wsl<ul>
+<li>I recommend to make shared folder for sharing files</li>
+<li>if you do not know about it, read <a href="https://baemincheon.github.io/2019/08/19/shared-folder-in-wsl/">this post</a></li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/19/unreal-linux-server-build/10.jpg" class="">
+<ul>
+<li>I used a shared folder called <code>LinuxShare</code> for sharing the package files</li>
+</ul>
+<img src="/2019/08/19/unreal-linux-server-build/11.jpg" class="">
+<ul>
+<li>there are build files in package binary folder<ul>
+<li><code>[ProjectName]</code> is build file from <code>Game</code> build target, which cannot be executed for absense of graphics api</li>
+<li><code>[ProjectName]Server</code> is build file from <code>Server</code> build target, which is copied by you</li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/19/unreal-linux-server-build/12.jpg" class="">
+<img src="/2019/08/19/unreal-linux-server-build/13.jpg" class="">
+<ul>
+<li>execute server build with option <code>127.0.0.1 -log</code> on wsl(linux)</li>
+</ul>
+<img src="/2019/08/19/unreal-linux-server-build/14.jpg" class="">
+<ul>
+<li>execute client build twice with option <code>127.0.0.1 -log -windowed resx=720 resy=480</code> on windows<ul>
+<li>you can see the same result that we saw in previous post</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://baemincheon.github.io/2019/08/19/unreal-linux-server-build/" data-id="ckj5ztr260003vcshh1nfgz7v" class="article-share-link">Share</a>
+      
+        <a href="https://baemincheon.github.io/2019/08/19/unreal-linux-server-build/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UnrealEngine/" rel="tag">UnrealEngine</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WSL/" rel="tag">WSL</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-differences-of-unreal-build-targets" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/08/16/differences-of-unreal-build-targets/" class="article-date">
@@ -361,7 +534,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2019/08/16/differences-of-unreal-build-targets/" data-id="ckgs4fjzv0003m8sha1lt6ro2" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2019/08/16/differences-of-unreal-build-targets/" data-id="ckj5ztr1p0000vcshfiwgggwf" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2019/08/16/differences-of-unreal-build-targets/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -538,7 +711,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2019/08/11/custom-unreal-engine-build/" data-id="ckgs4fk000008m8sh8dkegol5" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2019/08/11/custom-unreal-engine-build/" data-id="ckj5ztr290005vcshd4h81bvg" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2019/08/11/custom-unreal-engine-build/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -684,7 +857,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2019/08/06/what-is-unreal-build-target/" data-id="ckgs4fjzw0004m8shfczre0u8" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2019/08/06/what-is-unreal-build-target/" data-id="ckj5ztr2m000jvcsh74rfe41a" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2019/08/06/what-is-unreal-build-target/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -726,7 +899,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/About/" style="font-size: 10px;">About</a> <a href="/tags/Blueprint/" style="font-size: 10px;">Blueprint</a> <a href="/tags/BlueprintImplementableEvent/" style="font-size: 10px;">BlueprintImplementableEvent</a> <a href="/tags/FName/" style="font-size: 10px;">FName</a> <a href="/tags/Home/" style="font-size: 10px;">Home</a> <a href="/tags/HotReload/" style="font-size: 10px;">HotReload</a> <a href="/tags/Input/" style="font-size: 10px;">Input</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Retrospection/" style="font-size: 10px;">Retrospection</a> <a href="/tags/SmartPointer/" style="font-size: 10px;">SmartPointer</a> <a href="/tags/UniquePointer/" style="font-size: 10px;">UniquePointer</a> <a href="/tags/UnrealEngine/" style="font-size: 20px;">UnrealEngine</a> <a href="/tags/WSL/" style="font-size: 15px;">WSL</a> <a href="/tags/Widget/" style="font-size: 10px;">Widget</a>
+      <a href="/tags/About/" style="font-size: 10px;">About</a> <a href="/tags/Blueprint/" style="font-size: 10px;">Blueprint</a> <a href="/tags/BlueprintImplementableEvent/" style="font-size: 10px;">BlueprintImplementableEvent</a> <a href="/tags/FName/" style="font-size: 10px;">FName</a> <a href="/tags/Home/" style="font-size: 10px;">Home</a> <a href="/tags/HotReload/" style="font-size: 10px;">HotReload</a> <a href="/tags/Input/" style="font-size: 10px;">Input</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Retrospection/" style="font-size: 15px;">Retrospection</a> <a href="/tags/SmartPointer/" style="font-size: 10px;">SmartPointer</a> <a href="/tags/UniquePointer/" style="font-size: 10px;">UniquePointer</a> <a href="/tags/UnrealEngine/" style="font-size: 20px;">UnrealEngine</a> <a href="/tags/WSL/" style="font-size: 15px;">WSL</a> <a href="/tags/Widget/" style="font-size: 10px;">Widget</a>
     </div>
   </div>
 
@@ -735,7 +908,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li></ul>
     </div>
   </div>
 
@@ -746,6 +919,10 @@ ga('send', 'pageview');
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2020/12/24/retrospection-2020/">retrospection-2020</a>
+          </li>
         
           <li>
             <a href="/2020/10/25/unreal-input-system-via-gamepad/">unreal-input-system-via-gamepad</a>
@@ -761,10 +938,6 @@ ga('send', 'pageview');
         
           <li>
             <a href="/2020/02/09/unreal-widget-coordinate-system/">unreal-widget-coordinate-system</a>
-          </li>
-        
-          <li>
-            <a href="/2020/02/03/home-page/">home-page</a>
           </li>
         
       </ul>

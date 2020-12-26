@@ -1074,6 +1074,9 @@ a.article-title:hover {
 #page-nav .space {
   color: #ddd;
 }
+.align-left {
+  margin-left: 20px;
+}
 #footer {
   background: #262a30;
   padding: 50px 0;
