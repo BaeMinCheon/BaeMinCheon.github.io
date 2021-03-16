@@ -79,6 +79,133 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-shared-folder-in-wsl" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/19/shared-folder-in-wsl/" class="article-date">
+  <time datetime="2019-08-18T15:57:29.000Z" itemprop="datePublished">2019-08-19</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/08/19/shared-folder-in-wsl/">shared-folder-in-wsl</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li>this post covers<ul>
+<li>how to share a folder in wsl</li>
+</ul>
+</li>
+<li>environment<ul>
+<li>Windows 10 / Home</li>
+<li>WSL / Ubuntu 18.04 LTS</li>
+<li>Visual Studio Code</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="pre-task"><a href="#pre-task" class="headerlink" title="pre-task"></a>pre-task</h3><ul>
+<li>install WSL in your Windows 10<ul>
+<li>open the <code>Microsoft Store</code></li>
+<li>search for <code>Ubuntu</code></li>
+<li>click <code>Ubuntu 18.04 LTS</code></li>
+<li>get and install it</li>
+</ul>
+</li>
+<li>prepare the environment<ul>
+<li>initialize your wsl</li>
+</ul>
+</li>
+</ul>
+<h3 id="make-link"><a href="#make-link" class="headerlink" title="make-link"></a>make-link</h3><img src="/2019/08/19/shared-folder-in-wsl/01.png" class="">
+<ul>
+<li>make a folder in some directory on Windows<ul>
+<li>ex) <code>D:\Code\LinuxShare</code></li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/19/shared-folder-in-wsl/02.png" class="">
+<ul>
+<li>make a link in some directory on WSL<ul>
+<li>format) <code>ln -s /mnt/[partition]/[folder...] [link-name]</code></li>
+<li>ex) <code>ln -s /mnt/d/Code/LinuxShare share-with-windows</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="make-file"><a href="#make-file" class="headerlink" title="make-file"></a>make-file</h3><img src="/2019/08/19/shared-folder-in-wsl/03.png" class="">
+<ul>
+<li>make a text file on Windows side<ul>
+<li>ex) <code>D:\Code\LinuxShare\test.txt</code></li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/19/shared-folder-in-wsl/04.png" class="">
+<ul>
+<li>check out the text file on WSL side<ul>
+<li>ex) <code>~/share-with-windows/test.txt</code></li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/19/shared-folder-in-wsl/05.png" class="">
+<img src="/2019/08/19/shared-folder-in-wsl/06.png" class="">
+<ul>
+<li>edit the text file and save it on WSL side<ul>
+<li>ex) <code>hello WSL !</code> → <code>hello Windows !</code></li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/19/shared-folder-in-wsl/07.png" class="">
+<ul>
+<li>check out the text file on Windows side</li>
+</ul>
+<h3 id="typing-and-compiling"><a href="#typing-and-compiling" class="headerlink" title="typing-and-compiling"></a>typing-and-compiling</h3><img src="/2019/08/19/shared-folder-in-wsl/08.png" class="">
+<img src="/2019/08/19/shared-folder-in-wsl/09.png" class="">
+<ul>
+<li>make a c file and edit it on Windows side<ul>
+<li>ex) <code>D:\Code\LinuxShare\test.c</code></li>
+</ul>
+</li>
+</ul>
+<img src="/2019/08/19/shared-folder-in-wsl/10.png" class="">
+<ul>
+<li>compile the c file and execute it<ul>
+<li>ex) <code>~/share-with-windows/test.c</code></li>
+</ul>
+</li>
+<li>you can now type texts on Windows and compile that on WSL</li>
+</ul>
+<img src="/2019/08/19/shared-folder-in-wsl/11.png" class="">
+<ul>
+<li>also output file, <code>a.out</code> will be seen on Windows side</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://baemincheon.github.io/2019/08/19/shared-folder-in-wsl/" data-id="ckmc6cwaz0009wksha8l6h6o0" class="article-share-link">Share</a>
+      
+        <a href="https://baemincheon.github.io/2019/08/19/shared-folder-in-wsl/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WSL/" rel="tag">WSL</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-unreal-linux-server-build" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/08/19/unreal-linux-server-build/" class="article-date">
@@ -238,7 +365,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2019/08/19/unreal-linux-server-build/" data-id="ckj6168qf0005ocsh672l29rf" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2019/08/19/unreal-linux-server-build/" data-id="ckmc6cwah0003wkshbf4j25ay" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2019/08/19/unreal-linux-server-build/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -534,7 +661,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2019/08/16/differences-of-unreal-build-targets/" data-id="ckj6168qb0001ocsh8qhm8mqk" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2019/08/16/differences-of-unreal-build-targets/" data-id="ckmc6cwaa0000wkshg2gbc8u8" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2019/08/16/differences-of-unreal-build-targets/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -711,7 +838,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2019/08/11/custom-unreal-engine-build/" data-id="ckj6168q70000ocsh2qj1d1pq" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2019/08/11/custom-unreal-engine-build/" data-id="ckmc6cwaf0001wkshb4ww563l" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2019/08/11/custom-unreal-engine-build/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -857,7 +984,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://baemincheon.github.io/2019/08/06/what-is-unreal-build-target/" data-id="ckj6168qj0008ocshgzajbqrm" class="article-share-link">Share</a>
+      <a data-url="https://baemincheon.github.io/2019/08/06/what-is-unreal-build-target/" data-id="ckmc6cwbd000jwkshdb5b62oy" class="article-share-link">Share</a>
       
         <a href="https://baemincheon.github.io/2019/08/06/what-is-unreal-build-target/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -889,7 +1016,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/About/" rel="tag">About</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blueprint/" rel="tag">Blueprint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlueprintImplementableEvent/" rel="tag">BlueprintImplementableEvent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FName/" rel="tag">FName</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Home/" rel="tag">Home</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HotReload/" rel="tag">HotReload</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Input/" rel="tag">Input</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Retrospection/" rel="tag">Retrospection</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SmartPointer/" rel="tag">SmartPointer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UniquePointer/" rel="tag">UniquePointer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UnrealEngine/" rel="tag">UnrealEngine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WSL/" rel="tag">WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Widget/" rel="tag">Widget</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/About/" rel="tag">About</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blueprint/" rel="tag">Blueprint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlueprintImplementableEvent/" rel="tag">BlueprintImplementableEvent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FName/" rel="tag">FName</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Home/" rel="tag">Home</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HotReload/" rel="tag">HotReload</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Input/" rel="tag">Input</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Retrospection/" rel="tag">Retrospection</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SmartPointer/" rel="tag">SmartPointer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UniquePointer/" rel="tag">UniquePointer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UnrealEngine/" rel="tag">UnrealEngine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UnrealEngine-Natvis/" rel="tag">UnrealEngine, Natvis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WSL/" rel="tag">WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Widget/" rel="tag">Widget</a></li></ul>
     </div>
   </div>
 
@@ -899,7 +1026,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/About/" style="font-size: 10px;">About</a> <a href="/tags/Blueprint/" style="font-size: 10px;">Blueprint</a> <a href="/tags/BlueprintImplementableEvent/" style="font-size: 10px;">BlueprintImplementableEvent</a> <a href="/tags/FName/" style="font-size: 10px;">FName</a> <a href="/tags/Home/" style="font-size: 10px;">Home</a> <a href="/tags/HotReload/" style="font-size: 10px;">HotReload</a> <a href="/tags/Input/" style="font-size: 10px;">Input</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Retrospection/" style="font-size: 15px;">Retrospection</a> <a href="/tags/SmartPointer/" style="font-size: 10px;">SmartPointer</a> <a href="/tags/UniquePointer/" style="font-size: 10px;">UniquePointer</a> <a href="/tags/UnrealEngine/" style="font-size: 20px;">UnrealEngine</a> <a href="/tags/WSL/" style="font-size: 15px;">WSL</a> <a href="/tags/Widget/" style="font-size: 10px;">Widget</a>
+      <a href="/tags/About/" style="font-size: 10px;">About</a> <a href="/tags/Blueprint/" style="font-size: 10px;">Blueprint</a> <a href="/tags/BlueprintImplementableEvent/" style="font-size: 10px;">BlueprintImplementableEvent</a> <a href="/tags/FName/" style="font-size: 10px;">FName</a> <a href="/tags/Home/" style="font-size: 10px;">Home</a> <a href="/tags/HotReload/" style="font-size: 10px;">HotReload</a> <a href="/tags/Input/" style="font-size: 10px;">Input</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Retrospection/" style="font-size: 15px;">Retrospection</a> <a href="/tags/SmartPointer/" style="font-size: 10px;">SmartPointer</a> <a href="/tags/UniquePointer/" style="font-size: 10px;">UniquePointer</a> <a href="/tags/UnrealEngine/" style="font-size: 20px;">UnrealEngine</a> <a href="/tags/UnrealEngine-Natvis/" style="font-size: 10px;">UnrealEngine, Natvis</a> <a href="/tags/WSL/" style="font-size: 15px;">WSL</a> <a href="/tags/Widget/" style="font-size: 10px;">Widget</a>
     </div>
   </div>
 
@@ -908,7 +1035,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li></ul>
     </div>
   </div>
 
@@ -919,6 +1046,10 @@ ga('send', 'pageview');
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2021/03/01/unreal-engine-natvis/">unreal-engine-natvis</a>
+          </li>
         
           <li>
             <a href="/2020/12/24/retrospection-2020/">retrospection-2020</a>
@@ -936,10 +1067,6 @@ ga('send', 'pageview');
             <a href="/2020/03/01/unreal-cpp-ctor-and-dtor/">unreal-cpp-ctor-and-dtor</a>
           </li>
         
-          <li>
-            <a href="/2020/02/09/unreal-widget-coordinate-system/">unreal-widget-coordinate-system</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -952,7 +1079,7 @@ ga('send', 'pageview');
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2020 MinCheon Bae<br>
+      &copy; 2021 MinCheon Bae<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
